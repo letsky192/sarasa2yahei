@@ -57,7 +57,7 @@ jobs:
           cd $DL_DIR
           echo $DL_DIR && echo $DL_DIR_CL && echo $DL_DIR_SC
           curl -Lvo fonts.7z ${{ needs.job1.outputs.download_url }}
-          7z e fonts.7z SarasaUiCL-Regular.ttf SarasaUiCL-Light.ttf SarasaUiCL-Bold.ttf SarasaUiSC-Regular.ttf SarasaUiSC-Light.ttf SarasaUiSC-Bold.ttf
+          7z e fonts.7z SarasaMonoSC-Regular.ttf SarasaMonoSC-Light.ttf SarasaMonoSC-Bold.ttf SarasaUiSC-Regular.ttf SarasaUiSC-Light.ttf SarasaUiSC-Bold.ttf
 
       - name: Generate Patched CL Fonts
         run: |
