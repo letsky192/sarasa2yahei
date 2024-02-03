@@ -27,7 +27,7 @@ jobs:
       - name: Get Download URL
         id: get_download_url
         run: |
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | contains("SarasaUiSC-TTF-Unhinted")) | .browser_download_url')
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | contains("SarasaUiSC-TTF")) | .browser_download_url')
           echo "url=$DOWNLOAD_URL" >> "$GITHUB_OUTPUT"
 
   job2:
@@ -66,8 +66,8 @@ jobs:
       - name: Compress SC Fonts
         run: |
           cd $DL_DIR_SC
-          7z a sc-unhinted-yahei-${{ needs.job1.outputs.upstream_tag }}.7z msyh*
-          7z a sc-unhinted-simsun-${{ needs.job1.outputs.upstream_tag }}.7z simsun*
+          7z a sc-yahei-${{ needs.job1.outputs.upstream_tag }}.7z msyh*
+          7z a sc-simsun-${{ needs.job1.outputs.upstream_tag }}.7z simsun*
 
       - name: Calculate SHA1
         run: |
@@ -85,7 +85,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ needs.job1.outputs.upstream_tag }}
           prerelease: false
-          name: sarasa2yahei-unhinted-${{ needs.job1.outputs.upstream_tag }}
+          name: sarasa2yahei-${{ needs.job1.outputs.upstream_tag }}
           body_path: ${{ env.DL_DIR }}/sha1.txt
           files: |
             ${{ env.DL_DIR_CL }}/*.7z

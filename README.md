@@ -6,7 +6,7 @@ Patch the **Sarasa Gothic** to disguise it as **Microsoft YaHei** or **SimSun**,
 ## Overview
 
 Two styles are provided for now, each containing five fonts.  
-The source file used from the **Sarasa Gothic** is the `unhinted` `ttf` version.
+The source file used from the **Sarasa Gothic** is the `ttf` version.
 
 * Style
   * CL: Classical Orthography
