@@ -27,7 +27,7 @@ jobs:
       - name: Get Download URL
         id: get_download_url
         run: |
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | contains("Mono") | contains("TTF-Unhinted")) | .browser_download_url')
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | contains("MonoSC-TTF-Unhinted")) | .browser_download_url')
           echo "url=$DOWNLOAD_URL" >> "$GITHUB_OUTPUT"
 
   job2:
