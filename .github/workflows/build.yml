@@ -57,17 +57,7 @@ jobs:
           cd $DL_DIR
           echo $DL_DIR && echo $DL_DIR_CL && echo $DL_DIR_SC
           curl -Lvo fonts.7z ${{ needs.job1.outputs.download_url }}
-          7z e fonts.7z SarasaMonoSC-Regular.ttf SarasaMonoSC-Light.ttf SarasaMonoSC-Bold.ttf SarasaUiSC-Regular.ttf SarasaUiSC-Light.ttf SarasaUiSC-Bold.ttf
-
-      - name: Generate Patched CL Fonts
-        run: |
-          python3 exec_cl.py
-
-      - name: Compress CL Fonts
-        run: |
-          cd $DL_DIR_CL
-          7z a cl-unhinted-yahei-${{ needs.job1.outputs.upstream_tag }}.7z msyh*
-          7z a cl-unhinted-simsun-${{ needs.job1.outputs.upstream_tag }}.7z simsun*
+          7z e fonts.7z SarasaMonoSC-Regular.ttf SarasaMonoSC-Light.ttf SarasaMonoSC-Bold.ttf SarasaMonoSC-Regular.ttf SarasaMonoSC-Light.ttf SarasaMonoSC-Bold.ttf
 
       - name: Generate Patched SC Fonts
         run: |
