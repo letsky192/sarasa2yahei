@@ -1,6 +1,8 @@
 name: build sarasa2yahei
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '9 1,4,7,10,13 * * *'
 
 jobs:
   job1:
@@ -9,13 +11,12 @@ jobs:
     outputs:
       local_tag: ${{ steps.get_local_tag.outputs.tag }}
       upstream_tag: ${{ steps.get_upstream_tag.outputs.tag }}
-      download_url: ${{ steps.get_download_url.outputs.url }}
 
     steps:
       - name: Get Local Tag
         id: get_local_tag
         run: |
-          LOCAL_LATEST_TAG=$(curl -s https://api.github.com/repos/neotpravlennoye/sarasa2yahei/releases/latest | jq -r '.tag_name')
+          LOCAL_LATEST_TAG=$(curl -s https://api.github.com/repos/letsky192/sarasa2yahei/releases/latest | jq -r '.tag_name')
           echo "tag=$LOCAL_LATEST_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Get Upstream Tag
@@ -23,12 +24,6 @@ jobs:
         run: |
           UPSTREAM_LATEST_TAG=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.tag_name')
           echo "tag=$UPSTREAM_LATEST_TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Get Download URL
-        id: get_download_url
-        run: |
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | test("SarasaUiSC-TTF-(?!Unhinted).*")) | .browser_download_url')
-          echo "url=$DOWNLOAD_URL" >> "$GITHUB_OUTPUT"
 
   job2:
     runs-on: ubuntu-latest
@@ -43,36 +38,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get Download URL
+        run: |
+          DOWNLOAD_URL_SC=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | test("^(?=.*Gothic)(?=.*SC)(?!.*Unhinted).*$")) | .browser_download_url')
+          DOWNLOAD_URL_SCUI=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | test("^(?=.*Ui)(?=.*SC)(?!.*Unhinted).*$")) | .browser_download_url')
+          DOWNLOAD_URL_TC=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | test("^(?=.*Gothic)(?=.*TC)(?!.*Unhinted).*$")) | .browser_download_url')
+          DOWNLOAD_URL_TCUI=$(curl -s https://api.github.com/repos/be5invis/Sarasa-Gothic/releases/latest | jq -r '.assets[] | select(.name | test("^(?=.*Ui)(?=.*TC)(?!.*Unhinted).*$")) | .browser_download_url')
+          echo "url_sc=$DOWNLOAD_URL_SC" >> $GITHUB_ENV
+          echo "url_scui=$DOWNLOAD_URL_SCUI" >> $GITHUB_ENV
+          echo "url_tc=$DOWNLOAD_URL_TC" >> $GITHUB_ENV
+          echo "url_tcui=$DOWNLOAD_URL_TCUI" >> $GITHUB_ENV
+
       - name: Download and Extract Sarasa Fonts
         run: |
           mkdir /tmp/fonts
           DL_DIR=/tmp/fonts
           echo "DL_DIR=$DL_DIR" >> $GITHUB_ENV
-          mkdir /tmp/fonts/cl
-          DL_DIR_CL=/tmp/fonts/cl
-          echo "DL_DIR_CL=$DL_DIR_CL" >> $GITHUB_ENV
           mkdir /tmp/fonts/sc
+          mkdir /tmp/fonts/sc/base
+          mkdir /tmp/fonts/sc/supplemental
           DL_DIR_SC=/tmp/fonts/sc
           echo "DL_DIR_SC=$DL_DIR_SC" >> $GITHUB_ENV
+          mkdir /tmp/fonts/tc
+          mkdir /tmp/fonts/tc/base
+          mkdir /tmp/fonts/tc/supplemental
+          DL_DIR_TC=/tmp/fonts/tc
+          echo "DL_DIR_TC=$DL_DIR_TC" >> $GITHUB_ENV
           cd $DL_DIR
-          echo $DL_DIR && echo $DL_DIR_CL && echo $DL_DIR_SC
-          curl -Lvo fonts.7z ${{ needs.job1.outputs.download_url }}
-          7z e fonts.7z SarasaUiSC-Regular.ttf SarasaUiSC-Light.ttf SarasaUiSC-Bold.ttf
+          echo $DL_DIR && echo $DL_DIR_SC && echo $DL_DIR_TC
+          curl -Lo fonts_sc_zip $url_sc
+          curl -Lo fonts_scui_zip $url_scui
+          curl -Lo fonts_tc_zip $url_tc
+          curl -Lo fonts_tcui_zip $url_tcui
+          7z e fonts_sc_zip
+          7z e fonts_scui_zip
+          7z e fonts_tc_zip
+          7z e fonts_tcui_zip
 
-      - name: Generate Patched SC Fonts
+      - name: Generate Patched SC and TC Fonts
         run: |
           python3 exec_sc.py
+          python3 exec_tc.py
 
-      - name: Compress SC Fonts
+      - name: Compress SC and TC Fonts
         run: |
           cd $DL_DIR_SC
-          7z a sc-yahei-${{ needs.job1.outputs.upstream_tag }}.7z msyh*
-          7z a sc-simsun-${{ needs.job1.outputs.upstream_tag }}.7z simsun*
+          7z a -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on sc-yahei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
+          cd $DL_DIR_TC
+          7z a -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on tc-jhei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
 
       - name: Calculate SHA1
         run: |
           cd $DL_DIR
-          find "$DL_DIR_CL" "$DL_DIR_SC" -type f -name "*.7z" > filelist.txt
+          find "$DL_DIR_SC" "$DL_DIR_TC" -type f -name "*.7z" > filelist.txt
           while read -r file; do
             filename=$(basename "$file")
             sha1=$(sha1sum "$file" | awk '{print $1}')
@@ -80,7 +98,7 @@ jobs:
           done < filelist.txt
 
       - name: Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ needs.job1.outputs.upstream_tag }}
@@ -88,7 +106,5 @@ jobs:
           name: sarasa2yahei-${{ needs.job1.outputs.upstream_tag }}
           body_path: ${{ env.DL_DIR }}/sha1.txt
           files: |
-            ${{ env.DL_DIR_CL }}/*.7z
             ${{ env.DL_DIR_SC }}/*.7z
-
-
+            ${{ env.DL_DIR_TC }}/*.7z
