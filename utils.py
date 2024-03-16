@@ -1,175 +1,128 @@
 import fontforge as ff
 
 DOWNLOAD_DIR = '/tmp/fonts'
-OUTPUT_DIR_CL = DOWNLOAD_DIR + '/cl'
-OUTPUT_DIR_SC = DOWNLOAD_DIR + '/sc'
-COPYRIGHT = 'sarasa2yahei'
+OUTPUT_DIR_SC = '/tmp/fonts/sc'
+OUTPUT_DIR_TC = '/tmp/fonts/tc'
 
 
 def open_font(path):
     return ff.open(path)
 
-def remove_gasp(font):
-    font.gasp = ()
+def close_font(font):
+    font.close()
 
-def set_cleartype(font):
-    font.head_optimized_for_cleartype = 1
-
-def get_version(font):
-    return font.version.split(';')[0]
+# def get_version(font):
+#     return font.version.split(';')[0]
 
 
-def set_yahei_regular_names(font):
-    font.fontname = 'MicrosoftYaHei'
-    font.familyname = 'Microsoft YaHei'
-    font.fullname = 'Microsoft YaHei'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
+Style = ('Regular', 'Italic', 'Bold', 'Bold Italic')
+
+
+def set_font_info_sc(font, prefmy_zh, prefmy_en,
+                    cprt_zh, cprt_en, subfmy,
+                    weight='', weighthuman=''):
+
+    if len(weight)>0:
+        preferredstyles = (f'{weight} {Style[subfmy]}' if subfmy>0 else weight)
+        familyname_en = f'{prefmy_en} {weighthuman}'
+        familyname_zh = f'{prefmy_zh} {weighthuman}'
+        fullname_en = (f'{familyname_en} {Style[subfmy]}'
+                        if subfmy>0 else familyname_en)
+        fullname_zh = (f'{familyname_zh} {Style[subfmy]}'
+                        if subfmy>0 else familyname_zh)
+        uniqueid_en = f'{prefmy_en} {preferredstyles}'
+        uniqueid_zh = f'{prefmy_zh} {preferredstyles}'
+    else:
+        preferredstyles = Style[subfmy]
+        familyname_en = prefmy_en
+        familyname_zh = prefmy_zh
+        fullname_en = (f'{familyname_en} {Style[subfmy]}'
+                        if subfmy>0 else familyname_en)
+        fullname_zh = (f'{familyname_zh} {Style[subfmy]}'
+                        if subfmy>0 else familyname_zh)
+        uniqueid_en = f'{prefmy_en} {preferredstyles}'
+        uniqueid_zh = f'{prefmy_zh} {preferredstyles}'
+
+    font.fontname = prefmy_en.replace(' ','')+'-'+preferredstyles.replace(' ','')
+    font.familyname = familyname_en
+    font.fullname = fullname_en
+#    font.version = get_version(font)
+    font.copyright = cprt_en
     font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei'),
-        ('English (US)', 'SubFamily', 'Regular'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑')
-    )
-
-def set_yahei_regular_ui_names(font):
-    font.fontname = 'MicrosoftYaHeiUI'
-    font.familyname = 'Microsoft YaHei UI'
-    font.fullname = 'Microsoft YaHei UI'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei UI'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei UI'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei UI'),
-        ('English (US)', 'SubFamily', 'Regular'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑 UI'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑 UI')
-    )
-
-def set_yahei_light_names(font):
-    font.fontname = 'MicrosoftYaHeiLight'
-    font.familyname = 'Microsoft YaHei'
-    font.fullname = 'Microsoft YaHei Light'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei Light'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei Light'),
-        ('English (US)', 'SubFamily', 'Light'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑 Light')
-    )
-
-def set_yahei_light_ui_names(font):
-    font.fontname = 'MicrosoftYaHeiUILight'
-    font.familyname = 'Microsoft YaHei UI'
-    font.fullname = 'Microsoft YaHei UI Light'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei UI'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei UI Light'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei UI Light'),
-        ('English (US)', 'SubFamily', 'Light'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑 UI'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑 UI Light')
-    )
-
-def set_yahei_bold_names(font):
-    font.fontname = 'MicrosoftYaHeiBold'
-    font.familyname = 'Microsoft YaHei'
-    font.fullname = 'Microsoft YaHei Bold'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei Bold'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei Bold'),
-        ('English (US)', 'SubFamily', 'Bold'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑 Bold')
-    )
-
-def set_yahei_bold_ui_names(font):
-    font.fontname = 'MicrosoftYaHeiUIBold'
-    font.familyname = 'Microsoft YaHei UI'
-    font.fullname = 'Microsoft YaHei UI Bold'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Family', 'Microsoft YaHei UI'),
-        ('English (US)', 'Fullname', 'Microsoft YaHei UI Bold'),
-        ('English (US)', 'UniqueID', 'Microsoft YaHei UI Bold'),
-        ('English (US)', 'SubFamily', 'Bold'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('Chinese (PRC)', 'Family', '微软雅黑 UI'),
-        ('Chinese (PRC)', 'Fullname', '微软雅黑 UI Bold')
+        ('English (US)', 'Copyright', cprt_en),
+        ('English (US)', 'Family', familyname_en),
+        ('English (US)', 'SubFamily', Style[subfmy]),
+        ('English (US)', 'UniqueID', uniqueid_en),
+        ('English (US)', 'Fullname', fullname_en),
+        ('English (US)', 'Version', font.version),
+        ('English (US)', 'PostScriptName', font.fontname),
+        ('English (US)', 'Preferred Family', prefmy_en),
+        ('English (US)', 'Preferred Styles', preferredstyles),
+        ('Chinese (PRC)', 'Copyright', cprt_zh),
+        ('Chinese (PRC)', 'Family', familyname_zh),
+        ('Chinese (PRC)', 'SubFamily', Style[subfmy]),
+        ('Chinese (PRC)', 'UniqueID', uniqueid_zh),
+        ('Chinese (PRC)', 'Fullname', fullname_zh),
+        ('Chinese (PRC)', 'Version', font.version),
+        ('Chinese (PRC)', 'Preferred Family', prefmy_zh),
+        ('Chinese (PRC)', 'Preferred Styles', preferredstyles)
     )
 
 
-def set_simsun_names(font):
-    font.fontname = 'SimSun'
-    font.familyname = 'SimSun'
-    font.fullname = 'SimSun'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('English (US)', 'Family', 'SimSun'),
-        ('English (US)', 'SubFamily', 'Regular'),
-        ('English (US)', 'UniqueID', 'SimSun'),
-        ('English (US)', 'Fullname', 'SimSun'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'PostScriptName', 'SimSun'),
-        ('Chinese (PRC)', 'Family', '宋体'),
-        ('Chinese (PRC)', 'Fullname', '宋体')
-    )
+def set_font_info_tc(font, prefmy_zh, prefmy_en,
+                    cprt_zh, cprt_en, subfmy,
+                    weight='', weighthuman=''):
 
-def set_new_simsun_names(font):
-    font.fontname = 'NSimSun'
-    font.familyname = 'NSimSun'
-    font.fullname = 'NSimSun'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
-    font.sfnt_names = (
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('English (US)', 'Family', 'NSimSun'),
-        ('English (US)', 'SubFamily', 'Regular'),
-        ('English (US)', 'UniqueID', 'NSimSun'),
-        ('English (US)', 'Fullname', 'NSimSun'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'PostScriptName', 'NSimSun'),
-        ('Chinese (PRC)', 'Family', '新宋体'),
-        ('Chinese (PRC)', 'Fullname', '新宋体')
-    )
+    if len(weight)>0:
+        preferredstyles = (f'{weight} {Style[subfmy]}' if subfmy>0 else weight)
+        familyname_en = f'{prefmy_en} {weighthuman}'
+        familyname_zh = f'{prefmy_zh} {weighthuman}'
+        fullname_en = (f'{familyname_en} {Style[subfmy]}'
+                        if subfmy>0 else familyname_en)
+        fullname_zh = (f'{familyname_zh} {Style[subfmy]}'
+                        if subfmy>0 else familyname_zh)
+        uniqueid_en = f'{prefmy_en} {preferredstyles}'
+        uniqueid_zh = f'{prefmy_zh} {preferredstyles}'
+    else:
+        preferredstyles = Style[subfmy]
+        familyname_en = prefmy_en
+        familyname_zh = prefmy_zh
+        fullname_en = (f'{familyname_en} {Style[subfmy]}'
+                        if subfmy>0 else familyname_en)
+        fullname_zh = (f'{familyname_zh} {Style[subfmy]}'
+                        if subfmy>0 else familyname_zh)
+        uniqueid_en = f'{prefmy_en} {preferredstyles}'
+        uniqueid_zh = f'{prefmy_zh} {preferredstyles}'
 
-def set_simsun_ext_names(font):
-    font.fontname = 'SimSun-ExtB'
-    font.familyname = 'SimSun-ExtB'
-    font.fullname = 'SimSun-ExtB'
-    font.version = get_version(font)
-    font.copyright = COPYRIGHT
+    font.fontname = prefmy_en.replace(' ','')+'-'+preferredstyles.replace(' ','')
+    font.familyname = familyname_en
+    font.fullname = fullname_en
+#    font.version = get_version(font)
+    font.copyright = cprt_en
     font.sfnt_names = (
-        ('English (US)', 'Copyright', COPYRIGHT),
-        ('English (US)', 'Family', 'SimSun-ExtB'),
-        ('English (US)', 'SubFamily', 'Regular'),
-        ('English (US)', 'UniqueID', 'SimSun-ExtB'),
-        ('English (US)', 'Fullname', 'SimSun-ExtB'),
-        ('English (US)', 'Version', get_version(font)),
-        ('English (US)', 'PostScriptName', 'SimSun-ExtB')
+        ('English (US)', 'Copyright', cprt_en),
+        ('English (US)', 'Family', familyname_en),
+        ('English (US)', 'SubFamily', Style[subfmy]),
+        ('English (US)', 'UniqueID', uniqueid_en),
+        ('English (US)', 'Fullname', fullname_en),
+        ('English (US)', 'Version', font.version),
+        ('English (US)', 'PostScriptName', font.fontname),
+        ('English (US)', 'Preferred Family', prefmy_en),
+        ('English (US)', 'Preferred Styles', preferredstyles),
+        ('Chinese (Taiwan)', 'Copyright', cprt_zh),
+        ('Chinese (Taiwan)', 'Family', familyname_zh),
+        ('Chinese (Taiwan)', 'SubFamily', Style[subfmy]),
+        ('Chinese (Taiwan)', 'UniqueID', uniqueid_zh),
+        ('Chinese (Taiwan)', 'Fullname', fullname_zh),
+        ('Chinese (Taiwan)', 'Version', font.version),
+        ('Chinese (Taiwan)', 'Preferred Family', prefmy_zh),
+        ('Chinese (Taiwan)', 'Preferred Styles', preferredstyles),
+        ('Chinese (Hong Kong)', 'Copyright', cprt_zh),
+        ('Chinese (Hong Kong)', 'Family', familyname_zh),
+        ('Chinese (Hong Kong)', 'SubFamily', Style[subfmy]),
+        ('Chinese (Hong Kong)', 'UniqueID', uniqueid_zh),
+        ('Chinese (Hong Kong)', 'Fullname', fullname_zh),
+        ('Chinese (Hong Kong)', 'Version', font.version),
+        ('Chinese (Hong Kong)', 'Preferred Family', prefmy_zh),
+        ('Chinese (Hong Kong)', 'Preferred Styles', preferredstyles)
     )

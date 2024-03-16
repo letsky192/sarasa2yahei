@@ -1,28 +1,17 @@
 # Sarasa2Yahei
 
-Patch the **Sarasa Gothic** to disguise it as **Microsoft YaHei** or **SimSun**, making it easy to replace directly in the windows environment.
+将[更纱黑体](https://github.com/be5invis/Sarasa-Gothic)改名为`微软雅黑`/`微軟正黑體`，用于替换系统字体。
 
+>Gothic => Microsoft YaHei
+>
+>Ui => Microsoft YaHei UI
 
-## Overview
+- 包含 5 个字重
+- 保留 Hinting
+- Windows 下的浏览器、Word 等软件中，常规体的`加粗`/`倾斜`可正确调用`Bold`/`Italic`字形
+--------------------------------------
+已知问题：FontForge 会自动修改`xAvgCharWidth`，导致 Windows 的~~屎山~~旧界面变得很宽。
 
-Two styles are provided for now, each containing five fonts.  
-The source file used from the **Sarasa Gothic** is the `ttf` version.
+## Credit
 
-* Style
-  * CL: Classical Orthography
-  * SC: Simplified Chinese Regional Orthography
-* Font
-  * msyh.ttc
-  * msyhbd.ttc
-  * msyhl.ttc
-  * simsun.ttc
-  * simsunb.ttf
-
-## Credits
-
-[Sarasa Gothic](https://github.com/be5invis/Sarasa-Gothic)  [yahei-sarasa](https://github.com/chenh96/yahei-sarasa)
-
-
-
-
-
+[yahei-sarasa](https://github.com/chenh96/yahei-sarasa)
