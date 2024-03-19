@@ -17,7 +17,6 @@ def close_font(font):
 
 Style = ('Regular', 'Italic', 'Bold', 'Bold Italic')
 
-
 def set_font_info_sc(font, prefmy_zh, prefmy_en,
                     cprt_zh, cprt_en, subfmy,
                     weight='', weighthuman=''):
@@ -126,3 +125,60 @@ def set_font_info_tc(font, prefmy_zh, prefmy_en,
         ('Chinese (Hong Kong)', 'Preferred Family', prefmy_zh),
         ('Chinese (Hong Kong)', 'Preferred Styles', preferredstyles)
     )
+
+
+def bytes2int(bytes):
+    return int.from_bytes(bytes, byteorder='big', signed=False)
+
+
+def readXACW(ttffile):
+    fo = open(ttffile, 'rb')
+    HeadBytes = fo.read(224)
+    index = HeadBytes.find(b'OS/2') + 8
+    offset = bytes2int(HeadBytes[index:index+4])
+    fo.seek(offset + 2, 0)
+    XACW_Bytes = fo.read(2)
+    fo.close()
+    print(f'read {ttffile}')
+    XACW = bytes2int(XACW_Bytes)
+    print(f'xAvgCharWidth = {XACW}')
+    return XACW_Bytes
+
+
+def patchXACW(ttcfile, XACW_Bytes1, XACW_Bytes2):
+    fo = open(ttcfile, 'rb+')
+    assert (fo.read(4) == b'ttcf'), '不是 ttc 文件'
+    fo.seek(8, 0)
+    assert (fo.read(4) == b'\x00\x00\x00\x02'), 'ttc 中字体数量不是 2'
+
+    OffsetTtfHead_Bytes1 = fo.read(4)
+    OffsetTtfHead_Bytes2 = fo.read(4)
+    fo.seek(bytes2int(OffsetTtfHead_Bytes1), 0)
+    HeadBytes1 = fo.read(224)
+    fo.seek(bytes2int(OffsetTtfHead_Bytes2), 0)
+    HeadBytes2 = fo.read(224)
+    index1 = HeadBytes1.find(b'OS/2') + 8
+    index2 = HeadBytes2.find(b'OS/2') + 8
+    offset1 = bytes2int(HeadBytes1[index1:index1+4])
+    offset2 = bytes2int(HeadBytes2[index2:index2+4])
+
+    fo.seek(offset1 + 2, 0)
+    oldXACW_Bytes1 = fo.read(2)
+    fo.seek(offset2 + 2, 0)
+    oldXACW_Bytes2 = fo.read(2)
+
+    fo.seek(offset1 + 2, 0)
+    fo.write(XACW_Bytes1)
+    fo.seek(offset2 + 2, 0)
+    fo.write(XACW_Bytes2)
+    fo.close()
+
+    print(f'patch {ttcfile}')
+    oldXACW1 = bytes2int(oldXACW_Bytes1)
+    oldXACW2 = bytes2int(oldXACW_Bytes2)
+    XACW1 = bytes2int(XACW_Bytes1)
+    XACW2 = bytes2int(XACW_Bytes2)
+    print('xAvgCharWidth Fixing:')
+    print(f'{oldXACW1} --> {XACW1}')
+    print(f'{oldXACW2} --> {XACW2}')
+    return
