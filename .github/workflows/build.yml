@@ -83,9 +83,9 @@ jobs:
       - name: Compress SC and TC Fonts
         run: |
           cd $DL_DIR_SC
-          7z a -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on sc-yahei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
+          7z a -t7z -m0=lzma -mx=9 -mfb=273 -md=512m -ms=on sc-yahei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
           cd $DL_DIR_TC
-          7z a -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on tc-jhei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
+          7z a -t7z -m0=lzma -mx=9 -mfb=273 -md=512m -ms=on tc-jhei-${{ needs.job1.outputs.upstream_tag }}.7z ./*
 
       - name: Calculate SHA1
         run: |
